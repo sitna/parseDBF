@@ -1,15 +1,9 @@
-require('text-encoding-polyfill');
-var StringDecoder = require('string_decoder').StringDecoder;
-function defaultDecoder(data) {
-  var decoder = new StringDecoder();
-  var out = decoder.write(data) + decoder.end();
-  return out.replace(/\0/g, '').trim();
-}
 module.exports = createDecoder;
-var regex = /^(?:ASNI\s)?(\d+)$/m;
+var regexIso = /^8(\d{3})\-{0,1}(\d{0,2})$/m;
+var regex = /^(?:ASNI\s)?(\d{0,4})$/m;
 function createDecoder(encoding) {
   if (!encoding) {
-    return defaultDecoder;
+    encoding='ISO-8859-1';
   }
   try {
     new TextDecoder(encoding.trim());
@@ -17,6 +11,10 @@ function createDecoder(encoding) {
     var match = regex.exec(encoding);
     if (match) {
       encoding = 'windows-' + match[1];
+    }
+	match = regexIso.exec(encoding);
+	if (match) {
+      encoding = 'ISO-' + match[1]+ '-' + match[2];
     }
   }
   return browserDecoder;
